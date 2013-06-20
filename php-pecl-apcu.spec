@@ -1,0 +1,66 @@
+%define		modname	apcu
+%define		status		beta
+Summary:	APCu - APC User Cache
+Name:		php-pecl-%{modname}
+Version:	4.0.1
+Release:	1
+License:	PHP 3.01
+Group:		Development/Languages/PHP
+Source0:	http://pecl.php.net/get/%{modname}-%{version}.tgz
+# Source0-md5:	994de4335eb2967c006aa9ca185876fa
+Source1:	%{modname}.ini
+URL:		http://pecl.php.net/package/APCu/
+BuildRequires:	php-devel >= 4:5.1.0
+BuildRequires:	rpmbuild(macros) >= 1.580
+%{?requires_php_extension}
+Requires:	php(core) >= 5.1.0
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%description
+APCu is userland caching: APC stripped of opcode caching in
+preparation for the deployment of Zend Optimizer+ as the primary
+solution to opcode caching in future versions of PHP.
+
+APCu only supports userland caching (and dumping) of variables,
+providing an upgrade path for the future. When O+ takes over, many
+will be tempted to use 3rd party solutions to userland caching,
+possibly even distributed solutions; this would be a grave error. The
+tried and tested APC codebase provides far superior support for local
+storage of PHP variables.
+
+In PECL status of this package is: %{status}.
+
+%prep
+%setup -qc
+mv %{modname}-%{version}/* .
+cp -p %{SOURCE1} .
+
+%build
+phpize
+%configure \
+	--%{!?debug:dis}%{?debug:en}able-apcu-debug \
+	--enable-apcu-mmap
+%{__make}
+
+%install
+rm -rf $RPM_BUILD_ROOT
+install -d $RPM_BUILD_ROOT{%{php_extensiondir},%{php_sysconfdir}/conf.d}
+install -p modules/apcu.so $RPM_BUILD_ROOT%{php_extensiondir}/%{modname}.so
+cp -p %{modname}.ini $RPM_BUILD_ROOT%{php_sysconfdir}/conf.d/%{modname}.ini
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%post
+%php_webserver_restart
+
+%postun
+if [ "$1" = 0 ]; then
+	%php_webserver_restart
+fi
+
+%files
+%defattr(644,root,root,755)
+%doc README.md NOTICE TECHNOTES.txt TODO INSTALL LICENSE
+%config(noreplace) %verify(not md5 mtime size) %{php_sysconfdir}/conf.d/%{modname}.ini
+%attr(755,root,root) %{php_extensiondir}/%{modname}.so
