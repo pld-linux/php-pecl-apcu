@@ -2,12 +2,12 @@
 %define		status		beta
 Summary:	APCu - APC User Cache
 Name:		php-pecl-%{modname}
-Version:	4.0.1
+Version:	4.0.2
 Release:	1
 License:	PHP 3.01
 Group:		Development/Languages/PHP
 Source0:	http://pecl.php.net/get/%{modname}-%{version}.tgz
-# Source0-md5:	994de4335eb2967c006aa9ca185876fa
+# Source0-md5:	c8a5c246b787eec81847017823099884
 Source1:	%{modname}.ini
 URL:		http://pecl.php.net/package/APCu/
 BuildRequires:	php-devel >= 4:5.1.0
@@ -39,6 +39,7 @@ cp -p %{SOURCE1} .
 phpize
 %configure \
 	--%{!?debug:dis}%{?debug:en}able-apcu-debug \
+	--enable-apcu-spinlocks \
 	--enable-apcu-mmap
 %{__make}
 
