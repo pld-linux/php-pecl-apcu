@@ -1,7 +1,7 @@
+%define		php_name	php%{?php_suffix}
 %define		modname	apcu
-%define		status		beta
 Summary:	APCu - APC User Cache
-Name:		php-pecl-%{modname}
+Name:		%{php_name}-pecl-%{modname}
 Version:	4.0.2
 Release:	2
 License:	PHP 3.01
@@ -10,8 +10,8 @@ Source0:	http://pecl.php.net/get/%{modname}-%{version}.tgz
 # Source0-md5:	c8a5c246b787eec81847017823099884
 Source1:	%{modname}.ini
 URL:		http://pecl.php.net/package/APCu/
-BuildRequires:	php-devel >= 4:5.1.0
-BuildRequires:	rpmbuild(macros) >= 1.580
+BuildRequires:	%{php_name}-devel >= 4:5.1.0
+BuildRequires:	rpmbuild(macros) >= 1.666
 %{?requires_php_extension}
 Requires:	php(core) >= 5.1.0
 Provides:	php(apcu) = %{version}
@@ -28,8 +28,6 @@ will be tempted to use 3rd party solutions to userland caching,
 possibly even distributed solutions; this would be a grave error. The
 tried and tested APC codebase provides far superior support for local
 storage of PHP variables.
-
-In PECL status of this package is: %{status}.
 
 %prep
 %setup -qc
