@@ -2,12 +2,12 @@
 %define		modname	apcu
 Summary:	APCu - APC User Cache
 Name:		%{php_name}-pecl-%{modname}
-Version:	4.0.2
-Release:	2
+Version:	4.0.4
+Release:	1
 License:	PHP 3.01
 Group:		Development/Languages/PHP
 Source0:	http://pecl.php.net/get/%{modname}-%{version}.tgz
-# Source0-md5:	c8a5c246b787eec81847017823099884
+# Source0-md5:	a7696b1c351d9bd1592b7840701f5bf7
 Source1:	%{modname}.ini
 URL:		http://pecl.php.net/package/APCu/
 BuildRequires:	%{php_name}-devel >= 4:5.1.0
