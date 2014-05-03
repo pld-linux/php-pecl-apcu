@@ -3,12 +3,15 @@
 Summary:	APCu - APC User Cache
 Name:		%{php_name}-pecl-%{modname}
 Version:	4.0.4
-Release:	1
+Release:	2
 License:	PHP 3.01
 Group:		Development/Languages/PHP
 Source0:	http://pecl.php.net/get/%{modname}-%{version}.tgz
 # Source0-md5:	a7696b1c351d9bd1592b7840701f5bf7
 Source1:	%{modname}.ini
+Source2:	apache.conf
+Source3:	config.php
+Patch0:	config.patch
 URL:		http://pecl.php.net/package/APCu/
 BuildRequires:	%{php_name}-devel >= 4:5.1.0
 BuildRequires:	rpmbuild(macros) >= 1.666
@@ -16,6 +19,11 @@ BuildRequires:	rpmbuild(macros) >= 1.666
 Requires:	php(core) >= 5.1.0
 Provides:	php(apcu) = %{version}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define		_webapps	/etc/webapps
+%define		_webapp		%{modname}
+%define		_sysconfdir	%{_webapps}/%{_webapp}
+%define		_appdir		%{_datadir}/%{_webapp}
 
 %description
 APCu is userland caching: APC stripped of opcode caching in
@@ -29,9 +37,26 @@ possibly even distributed solutions; this would be a grave error. The
 tried and tested APC codebase provides far superior support for local
 storage of PHP variables.
 
+%package -n apcu-panel
+Summary:	APCu control panel
+Group:		Applications/Networking
+Requires:	%{name} = %{version}-%{release}
+Requires:	php(gd)
+Requires:	webapps
+Requires:	webserver(access)
+Requires:	webserver(php) >= 5.0
+%if "%{_rpmversion}" >= "5"
+BuildArch:	noarch
+%endif
+
+%description -n apcu-panel
+This package provides the APCu control panel, with Webserver
+configuration, available on <http://localhost/apcu-panel/>
+
 %prep
 %setup -qc
 mv %{modname}-%{version}/* .
+%patch0 -p1
 cp -p %{SOURCE1} .
 
 %build
@@ -48,6 +73,13 @@ install -d $RPM_BUILD_ROOT{%{php_extensiondir},%{php_sysconfdir}/conf.d}
 install -p modules/apcu.so $RPM_BUILD_ROOT%{php_extensiondir}/%{modname}.so
 cp -p %{modname}.ini $RPM_BUILD_ROOT%{php_sysconfdir}/conf.d/%{modname}.ini
 
+# Install the Control Panel
+install -d $RPM_BUILD_ROOT{%{_appdir},%{_sysconfdir}}
+cp -p apc.php  $RPM_BUILD_ROOT%{_appdir}/index.php
+cp -p %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/apache.conf
+cp -p %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/httpd.conf
+cp -p %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/config.php
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -59,8 +91,28 @@ if [ "$1" = 0 ]; then
 	%php_webserver_restart
 fi
 
+%triggerin -n apcu-panel -- apache1 < 1.3.37-3, apache1-base
+%webapp_register apache %{_webapp}
+
+%triggerun -n apcu-panel -- apache1 < 1.3.37-3, apache1-base
+%webapp_unregister apache %{_webapp}
+
+%triggerin -n apcu-panel -- apache < 2.2.0, apache-base
+%webapp_register httpd %{_webapp}
+
+%triggerun -n apcu-panel -- apache < 2.2.0, apache-base
+%webapp_unregister httpd %{_webapp}
+
 %files
 %defattr(644,root,root,755)
 %doc README.md NOTICE TECHNOTES.txt TODO INSTALL LICENSE
 %config(noreplace) %verify(not md5 mtime size) %{php_sysconfdir}/conf.d/%{modname}.ini
 %attr(755,root,root) %{php_extensiondir}/%{modname}.so
+
+%files -n apcu-panel
+%defattr(644,root,root,755)
+%dir %attr(750,root,http) %{_sysconfdir}
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/apache.conf
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/httpd.conf
+%attr(640,root,http) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/config.php
+%{_appdir}
