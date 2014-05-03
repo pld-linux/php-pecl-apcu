@@ -1,0 +1,10 @@
+--- php-pecl-apcu-4.0.4/apc.php~	2014-03-01 09:29:53.000000000 +0200
++++ php-pecl-apcu-4.0.4/apc.php	2014-05-03 18:12:24.418405184 +0300
+@@ -24,6 +24,7 @@
+ 
+ $VERSION='$Id$';
+ 
++require_once '/etc/webapps/apcu/config.php';
+ ////////// READ OPTIONAL CONFIGURATION FILE ////////////
+ if (file_exists("apc.conf.php")) include("apc.conf.php");
+ ////////////////////////////////////////////////////////
