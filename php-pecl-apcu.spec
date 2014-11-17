@@ -23,6 +23,7 @@ Source3:	config.php
 Patch0:		config.patch
 URL:		http://pecl.php.net/package/APCu/
 BuildRequires:	%{php_name}-devel >= 4:5.1.0
+BuildRequires:	libtool
 BuildRequires:	rpmbuild(macros) >= 1.666
 %{?requires_php_extension}
 Provides:	php(apcu) = %{version}
@@ -69,6 +70,7 @@ mv %{modname}-%{version}/* .
 cp -p %{SOURCE1} .
 
 %build
+%{__libtoolize}
 phpize
 %configure \
 	--%{!?debug:dis}%{?debug:en}able-apcu-debug \
