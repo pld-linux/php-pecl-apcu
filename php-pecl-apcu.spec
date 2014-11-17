@@ -1,6 +1,6 @@
 #
 # Conditional build:
-%bcond_with	web		# make web package
+%bcond_without	web		# make web package
 
 # don't build for php53
 %if 0%{?_pld_builder:1} && "%{?php_suffix}" != "55"
