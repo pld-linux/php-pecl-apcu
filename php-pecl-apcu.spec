@@ -1,9 +1,18 @@
+#
+# Conditional build:
+%bcond_with	web		# make web package
+
+# don't build for php53
+%if 0%{?_pld_builder:1} && "%{?php_suffix}" != "55"
+%undefine	with_web
+%endif
+
 %define		php_name	php%{?php_suffix}
 %define		modname	apcu
 Summary:	APCu - APC User Cache
 Name:		%{php_name}-pecl-%{modname}
 Version:	4.0.4
-Release:	3
+Release:	4
 License:	PHP 3.01
 Group:		Development/Languages/PHP
 Source0:	http://pecl.php.net/get/%{modname}-%{version}.tgz
@@ -74,11 +83,13 @@ install -p modules/apcu.so $RPM_BUILD_ROOT%{php_extensiondir}/%{modname}.so
 cp -p %{modname}.ini $RPM_BUILD_ROOT%{php_sysconfdir}/conf.d/%{modname}.ini
 
 # Install the Control Panel
+%if %{with web}
 install -d $RPM_BUILD_ROOT{%{_appdir},%{_sysconfdir}}
 cp -p apc.php  $RPM_BUILD_ROOT%{_appdir}/index.php
 cp -p %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/apache.conf
 cp -p %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/httpd.conf
 cp -p %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/config.php
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -109,6 +120,7 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{php_sysconfdir}/conf.d/%{modname}.ini
 %attr(755,root,root) %{php_extensiondir}/%{modname}.so
 
+%if %{with web}
 %files -n apcu-panel
 %defattr(644,root,root,755)
 %dir %attr(750,root,http) %{_sysconfdir}
@@ -116,3 +128,4 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/httpd.conf
 %attr(640,root,http) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/config.php
 %{_appdir}
+%endif
