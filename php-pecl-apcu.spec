@@ -12,7 +12,7 @@
 Summary:	APCu - APC User Cache
 Name:		%{php_name}-pecl-%{modname}
 Version:	4.0.7
-Release:	2
+Release:	3
 License:	PHP 3.01
 Group:		Development/Languages/PHP
 Source0:	http://pecl.php.net/get/%{modname}-%{version}.tgz
@@ -50,7 +50,7 @@ storage of PHP variables.
 %package -n apcu-panel
 Summary:	APCu control panel
 Group:		Applications/Networking
-Requires:	%{name} = %{version}-%{release}
+Requires:	php(apcu) = %{version}
 Requires:	php(gd)
 Requires:	webapps
 Requires:	webserver(access)
