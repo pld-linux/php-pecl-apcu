@@ -2,8 +2,8 @@
 # Conditional build:
 %bcond_without	web		# make web package
 
-# don't build for php53
-%if 0%{?_pld_builder:1} && "%{?php_suffix}" != "56"
+# on builders, build "web" only under php70
+%if 0%{?_pld_builder:1} && "%{?php_suffix}" != "70"
 %undefine	with_web
 %endif
 
@@ -11,18 +11,18 @@
 %define		modname	apcu
 Summary:	APCu - APC User Cache
 Name:		%{php_name}-pecl-%{modname}
-Version:	4.0.11
-Release:	2
+Version:	5.1.8
+Release:	1
 License:	PHP 3.01
 Group:		Development/Languages/PHP
 Source0:	https://pecl.php.net/get/%{modname}-%{version}.tgz
-# Source0-md5:	13c0c0dd676e5a7905d54fa985d0ee62
+# Source0-md5:	0ef8be2ee8acb4dba5a66b247a254995
 Source1:	%{modname}.ini
 Source2:	apache.conf
 Source3:	config.php
 Patch0:		config.patch
 URL:		https://pecl.php.net/package/APCu/
-BuildRequires:	%{php_name}-devel >= 4:5.1.0
+BuildRequires:	%{php_name}-devel >= 4:7.0.0
 BuildRequires:	libtool
 BuildRequires:	rpmbuild(macros) >= 1.666
 %{?requires_php_extension}
