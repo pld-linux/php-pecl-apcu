@@ -3,7 +3,7 @@
 %bcond_without	web		# make web package
 
 # don't build for php53
-%if 0%{?_pld_builder:1} && "%{?php_suffix}" != "55"
+%if 0%{?_pld_builder:1} && "%{?php_suffix}" != "56"
 %undefine	with_web
 %endif
 
@@ -12,16 +12,16 @@
 Summary:	APCu - APC User Cache
 Name:		%{php_name}-pecl-%{modname}
 Version:	4.0.11
-Release:	1
+Release:	2
 License:	PHP 3.01
 Group:		Development/Languages/PHP
-Source0:	http://pecl.php.net/get/%{modname}-%{version}.tgz
+Source0:	https://pecl.php.net/get/%{modname}-%{version}.tgz
 # Source0-md5:	13c0c0dd676e5a7905d54fa985d0ee62
 Source1:	%{modname}.ini
 Source2:	apache.conf
 Source3:	config.php
 Patch0:		config.patch
-URL:		http://pecl.php.net/package/APCu/
+URL:		https://pecl.php.net/package/APCu/
 BuildRequires:	%{php_name}-devel >= 4:5.1.0
 BuildRequires:	libtool
 BuildRequires:	rpmbuild(macros) >= 1.666
@@ -46,6 +46,15 @@ will be tempted to use 3rd party solutions to userland caching,
 possibly even distributed solutions; this would be a grave error. The
 tried and tested APC codebase provides far superior support for local
 storage of PHP variables.
+
+%package devel
+Summary: APCu developer files (header)
+Group:		Development/Libraries
+Requires:	%{php_name}-devel
+# does not require base
+
+%description devel
+These are the files needed to compile programs using Igbinary
 
 %package -n apcu-panel
 Summary:	APCu control panel
@@ -80,8 +89,11 @@ phpize
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{php_extensiondir},%{php_sysconfdir}/conf.d}
-install -p modules/apcu.so $RPM_BUILD_ROOT%{php_extensiondir}/%{modname}.so
+%{__make} install \
+	EXTENSION_DIR=%{php_extensiondir} \
+	INSTALL_ROOT=$RPM_BUILD_ROOT
+
+install -d $RPM_BUILD_ROOT%{php_sysconfdir}/conf.d
 cp -p %{modname}.ini $RPM_BUILD_ROOT%{php_sysconfdir}/conf.d/%{modname}.ini
 
 # Install the Control Panel
@@ -121,6 +133,10 @@ fi
 %doc README.md NOTICE TECHNOTES.txt TODO INSTALL LICENSE
 %config(noreplace) %verify(not md5 mtime size) %{php_sysconfdir}/conf.d/%{modname}.ini
 %attr(755,root,root) %{php_extensiondir}/%{modname}.so
+
+%files devel
+%defattr(644,root,root,755)
+%{_includedir}/php/ext/%{modname}
 
 %if %{with web}
 %files -n apcu-panel
