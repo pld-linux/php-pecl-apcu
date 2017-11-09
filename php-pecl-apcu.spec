@@ -1,6 +1,7 @@
 #
 # Conditional build:
 %bcond_without	web		# make web package
+%bcond_without	tests		# build without tests
 
 # on builders, build "web" only under php70
 %if 0%{?_pld_builder:1} && "%{?php_suffix}" != "70"
@@ -23,8 +24,12 @@ Source3:	config.php
 Patch0:		config.patch
 URL:		https://pecl.php.net/package/APCu/
 BuildRequires:	%{php_name}-devel >= 4:7.0.0
+BuildRequires:	%{php_name}-cli
 BuildRequires:	libtool
 BuildRequires:	rpmbuild(macros) >= 1.666
+%if %{with tests}
+BuildRequires:	%{php_name}-pcre
+%endif
 %{?requires_php_extension}
 Provides:	php(apcu) = %{version}
 Obsoletes:	php-pecl-apcu < 4.0.4-2
@@ -78,6 +83,16 @@ mv %{modname}-%{version}/* .
 %patch0 -p1
 cp -p %{SOURCE1} .
 
+cat <<'EOF' > run-tests.sh
+#!/bin/sh
+export NO_INTERACTION=1 REPORT_EXIT_STATUS=1 MALLOC_CHECK_=2
+exec %{__make} test \
+	PHP_EXECUTABLE=%{__php} \
+	PHP_TEST_SHARED_SYSTEM_EXTENSIONS="pcre" \
+	RUN_TESTS_SETTINGS="-q $*"
+EOF
+chmod +x run-tests.sh
+
 %build
 %{__libtoolize}
 phpize
@@ -86,6 +101,18 @@ phpize
 	--enable-apcu-spinlocks \
 	--enable-apcu-mmap
 %{__make}
+
+# simple module load test
+%{__php} -n -q \
+	-d extension_dir=modules \
+	-d extension=%{php_extensiondir}/spl.so \
+	-d extension=%{modname}.so \
+	-m > modules.log
+grep %{modname} modules.log
+
+%if %{with tests}
+./run-tests.sh --show-diff
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
