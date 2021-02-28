@@ -69,9 +69,7 @@ Requires:	php(gd)
 Requires:	webapps
 Requires:	webserver(access)
 Requires:	webserver(php) >= 5.0
-%if "%{_rpmversion}" >= "5"
 BuildArch:	noarch
-%endif
 
 %description -n apcu-panel
 This package provides the APCu control panel, with Webserver
