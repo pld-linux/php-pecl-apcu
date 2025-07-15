@@ -78,7 +78,7 @@ configuration, available on <http://localhost/apcu-panel/>
 %prep
 %setup -qc
 mv %{modname}-%{version}/* .
-%patch0 -p1
+%patch -P0 -p1
 cp -p %{SOURCE1} .
 
 cat <<'EOF' > run-tests.sh
