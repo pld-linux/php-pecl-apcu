@@ -13,7 +13,7 @@
 Summary:	APCu - APC User Cache
 Name:		%{php_name}-pecl-%{modname}
 Version:	5.1.28
-Release:	3
+Release:	4
 License:	PHP 3.01
 Group:		Development/Languages/PHP
 Source0:	https://pecl.php.net/get/%{modname}-%{version}.tgz
@@ -88,7 +88,11 @@ cat <<'EOF' > run-tests.sh
 export NO_INTERACTION=1 REPORT_EXIT_STATUS=1 MALLOC_CHECK_=2
 exec %{__make} test \
 	PHP_EXECUTABLE=%{__php} \
+%if "%php_major_version.%php_minor_version" < "7.4"
+	PHP_TEST_SHARED_SYSTEM_EXTENSIONS="pcre" \
+%else
 	PHP_TEST_SHARED_SYSTEM_EXTENSIONS="" \
+%endif
 	RUN_TESTS_SETTINGS="-q $*"
 EOF
 chmod +x run-tests.sh
