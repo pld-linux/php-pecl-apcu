@@ -13,7 +13,7 @@
 Summary:	APCu - APC User Cache
 Name:		%{php_name}-pecl-%{modname}
 Version:	5.1.28
-Release:	1
+Release:	2
 License:	PHP 3.01
 Group:		Development/Languages/PHP
 Source0:	https://pecl.php.net/get/%{modname}-%{version}.tgz
@@ -31,6 +31,8 @@ BuildRequires:	rpmbuild(macros) >= 1.666
 Provides:	php(apcu) = %{version}
 Obsoletes:	php-pecl-apcu < 4.0.4-2
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define		_noautoreq_pear		apc.*con.*.php
 
 %define		_webapps	/etc/webapps
 %define		_webapp		%{modname}
